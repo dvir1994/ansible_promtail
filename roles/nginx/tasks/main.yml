@@ -1,0 +1,78 @@
+---
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: "{{ nginx_package_name }}"
+    state: present
+    update_cache: true
+  become: true
+  tags: install_nginx
+
+- name: Ensure Nginx service is started and enabled
+  ansible.builtin.systemd:
+    name: "{{ nginx_service_name }}"
+    state: "{{ nginx_service_state }}"
+    enabled: "{{ nginx_service_enabled }}"
+  become: true
+  tags: install_nginx
+
+- name: Create Nginx configuration file
+  ansible.builtin.template:
+    src: nginx.conf.j2
+    dest: "{{ nginx_conf_dir }}/nginx.conf"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload Nginx
+  become: true
+
+- name: Create default site configuration
+  ansible.builtin.template:
+    src: default-site.conf.j2
+    dest: "{{ nginx_conf_dir }}/sites-available/{{ nginx_default_site_name }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload Nginx
+  become: true
+  when: nginx_default_site_enabled
+
+- name: Enable default site
+  ansible.builtin.file:
+    src: "{{ nginx_conf_dir }}/sites-available/{{ nginx_default_site_name }}"
+    dest: "{{ nginx_conf_dir }}/sites-enabled/{{ nginx_default_site_name }}"
+    state: link
+  notify: Reload Nginx
+  become: true
+  when: nginx_default_site_enabled
+
+- name: Remove default Nginx site
+  ansible.builtin.file:
+    path: "{{ nginx_conf_dir }}/sites-enabled/default"
+    state: absent
+  notify: Reload Nginx
+  become: true
+
+- name: Create web root directory
+  ansible.builtin.file:
+    path: "{{ nginx_default_site_root }}"
+    state: directory
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+    mode: "0755"
+  become: true
+
+- name: Copy index.html file
+  ansible.builtin.copy:
+    src: index.html
+    dest: "{{ nginx_default_site_root }}/index.html"
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+    mode: "0644"
+  become: true
+
+- name: Ensure Nginx is started and enabled on boot
+  ansible.builtin.systemd:
+    name: "{{ nginx_service_name }}"
+    state: started
+    enabled: true
+  become: true

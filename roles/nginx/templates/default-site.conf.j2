@@ -1,0 +1,26 @@
+server {
+    listen {{ nginx_default_site_port }} default_server;
+    listen [::]:{{ nginx_default_site_port }} default_server;
+
+    root {{ nginx_default_site_root }};
+    index index.html index.htm index.nginx-debian.html;
+
+    server_name _;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    access_log {{ nginx_access_log }};
+    error_log {{ nginx_error_log }};
+
+    client_max_body_size {{ nginx_client_max_body_size }};
+
+    # Additional custom configurations can be added here
+
+    # Uncomment the following lines to enable SSL (requires proper SSL setup)
+    # listen 443 ssl default_server;
+    # listen [::]:443 ssl default_server;
+    # ssl_certificate {{ nginx_ssl_cert_path }};
+    # ssl_certificate_key {{ nginx_ssl_key_path }};
+}

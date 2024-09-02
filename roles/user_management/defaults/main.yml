@@ -1,0 +1,22 @@
+---
+# DevOps user configuration
+user_management_devops_user_name: "devops"
+user_management_devops_group: "devops"
+user_management_devops_associated_groups: "sudo, devops"
+user_management_devops_shell: "/bin/bash"
+
+# Bob user configuration
+user_management_bob_user_name: "bob"
+user_management_bob_group: "bob"
+user_management_bob_shell: "/bin/bash"
+
+# Sudo configuration
+user_management_sudo_without_password_commands:
+  - "/sbin/reboot"
+
+# SSH configuration
+user_management_ssh_config_file: "/etc/ssh/sshd_config"
+user_management_ssh_port: 22
+user_management_ssh_permit_root_login: "without-password"
+user_management_ssh_password_authentication: "no"
+user_management_ssh_pubkey_authentication: "yes"

@@ -1,0 +1,18 @@
+---
+# UFW default policies
+firewall_default_incoming_policy: "deny"
+firewall_default_outgoing_policy: "allow"
+
+# List of allowed ports/services
+firewall_allowed_ports:
+  - { port: "22", proto: "tcp" }  # SSH
+  - { port: "80", proto: "tcp" }  # HTTP
+
+# Enable/disable UFW
+firewall_enabled: true
+
+# State of UFW service
+firewall_state: "started"
+
+# Whether to enable UFW on boot
+firewall_enabled_at_boot: true

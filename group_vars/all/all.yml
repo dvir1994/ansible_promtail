@@ -1,0 +1,32 @@
+---
+# Nginx configuration
+nginx_default_site_enabled: true
+nginx_default_site_name: "monad-labs"
+
+# User management configuration
+user_management_devops_user_name: "devops"
+user_management_devops_ssh_key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFxFhO7cTS+ZDoKXb6seleZrcThCOEvkoAbbEbEy60IK dvir@Dvirs-MacBook-Pro.local"
+user_management_bob_user_name: "bob"
+user_management_allowed_ssh_users: "devops"
+user_management_promtail_group: "promtail_group"
+user_management_promtail_user_name: "promtail_user"
+
+# Log management configuration
+log_management_loki_url: "http://LOKI_INSTANCE:3100" # Replace with actual Loki URL, HTTPS preferred
+log_management_enable_promtail: true
+
+# Firewall configuration
+firewall_allowed_ports:
+  - { port: "22", proto: "tcp" } # SSH
+  - { port: "80", proto: "tcp" } # HTTP
+firewall_enabled: true
+
+# Common system settings
+timezone: "UTC"
+system_packages:
+  - vim
+  - htop
+  - tmux
+  - unzip
+  - curl
+  - ufw

@@ -1,0 +1,13 @@
+[Unit]
+Description=Promtail service
+After=network.target
+
+[Service]
+Type=simple
+User={{ user_management_promtail_user_name }}
+ExecStart={{ log_management_promtail_install_dir }}/promtail -config.file {{ log_management_promtail_config_file }}
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

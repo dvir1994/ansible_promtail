@@ -1,0 +1,40 @@
+---
+# Nginx installation
+nginx_package_name: "nginx"
+nginx_service_name: "nginx"
+nginx_service_state: "started"
+nginx_service_enabled: true
+
+# Nginx configuration
+nginx_conf_dir: "/etc/nginx"
+nginx_user: "www-data"
+nginx_group: "www-data"
+nginx_worker_processes: "auto"
+nginx_worker_connections: 1024
+nginx_keepalive_timeout: 65
+nginx_client_max_body_size: "64m"
+
+# Default site configuration
+nginx_default_site_enabled: true
+nginx_default_site_name: "default"
+nginx_default_site_root: "/var/www/html"
+nginx_default_site_port: 80
+
+# SSL configuration (for future use)
+nginx_ssl_enabled: false
+nginx_ssl_cert_path: ""
+nginx_ssl_key_path: ""
+
+# Logging configuration
+nginx_access_log: "/var/log/nginx/access.log"
+nginx_error_log: "/var/log/nginx/error.log"
+nginx_log_format: |
+  '$remote_addr - $remote_user [$time_local] "$request" '
+  '$status $body_bytes_sent "$http_referer" '
+  '"$http_user_agent" "$http_x_forwarded_for"'
+
+# Performance tuning
+nginx_sendfile: "on"
+nginx_tcp_nopush: "on"
+nginx_tcp_nodelay: "on"
+nginx_types_hash_max_size: 2048

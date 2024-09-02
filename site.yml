@@ -1,0 +1,58 @@
+---
+
+- name: Configure bare metal server
+  hosts: all
+  become: true
+  vars:
+    ansible_become_password: "{{ vault_sudo_user_password }}"
+
+  pre_tasks:
+    # Run apt update
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: true
+      when: ansible_os_family == "Debian"
+
+    # Install required system packages
+    - name: Install system packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ system_packages }}"
+
+  roles:
+    - role: nginx
+      tags:
+        - webserver
+
+    - role: user_management
+      tags:
+        - users
+
+    - role: log_management
+      tags:
+        - logs
+        - monitoring
+
+    - role: firewall
+      tags:
+        - firewall
+
+    - role: security
+      tags:
+        - security
+
+  post_tasks:
+    - name: Ensure all configured services are started
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: started
+        enabled: true
+      loop:
+        - nginx
+        - ufw
+        - promtail
+
+    - name: Print completion message
+      ansible.builtin.debug:
+        msg: "Server configuration completed successfully!"

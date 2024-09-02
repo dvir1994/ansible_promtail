@@ -1,0 +1,118 @@
+---
+- name: Ensure sudo group exists
+  ansible.builtin.group:
+    name: sudo
+    state: present
+  become: true
+  tags: create_groups
+
+- name: Ensure devops groups exists
+  ansible.builtin.group:
+    name: "{{ user_management_devops_group }}"
+    state: present
+  become: true
+  tags: create_groups
+
+- name: Ensure python3-passlib is installed
+  ansible.builtin.apt:
+    name: python3-passlib
+    state: present
+  become: true
+
+# Set the password for the devops user, use the variable defined in the group_vars/all file - vault_user_management_devops_user_password
+# since I am running Mac as the Ansible client and it has issues with hashing the password using passlib, hashing the password on the target host
+# -> more details here - https://docs.ansible.com/ansible/latest/collections/ansible/builtin/user_module.html#parameter-password
+- name: Generate hashed password
+  ansible.builtin.command:
+    cmd: >
+      python3 -c "from passlib.hash import sha512_crypt; import sys;
+      print(sha512_crypt.using(rounds=5000).hash(sys.argv[1]))"
+      "{{ vault_user_management_devops_user_password }}"
+  register: hashed_password
+  changed_when: false
+  no_log: true
+
+- name: Create devops user with hashed password
+  ansible.builtin.user:
+    name: "{{ user_management_devops_user_name }}"
+    password: "{{ hashed_password.stdout }}"
+    groups: "{{ user_management_devops_associated_groups }}"
+    shell: /bin/bash
+    create_home: true
+    state: present
+  become: true
+  no_log: true
+  tags: create_users
+
+- name: Ensure .ssh directory exists
+  ansible.builtin.file:
+    path: "/home/{{ user_management_devops_user_name }}/.ssh"
+    state: directory
+    owner: "{{ user_management_devops_user_name }}"
+    group: "{{ user_management_devops_user_name }}"
+    mode: "0700"
+  become: true
+
+- name: Add SSH key to authorized_keys
+  ansible.builtin.lineinfile:
+    path: "/home/{{ user_management_devops_user_name }}/.ssh/authorized_keys"
+    line: "{{ user_management_devops_ssh_key }}"
+    create: true
+    owner: "{{ user_management_devops_user_name }}"
+    group: "{{ user_management_devops_user_name }}"
+    mode: "0600"
+  become: true
+
+- name: Ensure bob group exists
+  ansible.builtin.group:
+    name: "{{ user_management_bob_group }}"
+    state: present
+  become: true
+  tags: create_groups
+
+- name: Create bob user
+  ansible.builtin.user:
+    name: "{{ user_management_bob_user_name }}"
+    group: "{{ user_management_bob_group }}"
+    shell: "{{ user_management_bob_shell }}"
+    createhome: true
+  become: true
+  tags: create_users
+
+- name: Allow bob to reboot without password
+  ansible.builtin.lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: "^{{ user_management_bob_user_name }}"
+    line: '{{ user_management_bob_user_name }} ALL=(ALL) NOPASSWD: {{ user_management_sudo_without_password_commands | join(", ") }}'
+    validate: "visudo -cf %s"
+  become: true
+  tags: bob_apply_reboot_sudo_permissions
+
+- name: Ensure promtail group exists
+  ansible.builtin.group:
+    name: "{{ user_management_promtail_group }}"
+    state: present
+  become: true
+  tags: create_groups
+
+- name: Create promtail user
+  ansible.builtin.user:
+    name: "{{ user_management_promtail_user_name }}"
+    group: "{{ user_management_promtail_group }}"
+    shell: /sbin/nologin
+    create_home: true
+    state: present
+  become: true
+  no_log: true
+  tags: create_users
+
+- name: Ensure promtail group has read access to /var/log/nginx/*
+  ansible.builtin.file:
+    path: /var/log/nginx
+    state: directory
+    recurse: true
+    mode: "0750"
+    owner: root
+    group: "{{ user_management_promtail_group }}"
+  become: true

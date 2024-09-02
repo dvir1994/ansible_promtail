@@ -1,0 +1,16 @@
+---
+# Warning message for unauthorized users
+security_warning_message: "Unauthorized access to this system is prohibited. All activities are monitored and recorded."
+
+# Security packages
+security_apt_packages:
+  - fail2ban
+  - apt-show-versions
+  - apt-listchanges
+  - chkrootkit
+  - auditd
+
+# Services to enable
+security_services_to_enable:
+  - fail2ban
+  - auditd

@@ -1,0 +1,26 @@
+server:
+  http_listen_port: 9080
+  grpc_listen_port: 0
+
+positions:
+  filename: {{ log_management_promtail_positions_file_path }}/promtail_positions.yaml
+
+clients:
+  - url: {{ log_management_loki_url }}/loki/api/v1/push
+
+scrape_configs:
+  - job_name: nginx_access_logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nginx_access_logs
+          __path__: {{ log_management_nginx_access_log }}
+
+  - job_name: nginx_error_logs
+    static_configs:
+      - targets:
+          - localhost
+        labels:
+          job: nginx_error_logs
+          __path__: {{ log_management_nginx_error_log }}

@@ -1,0 +1,18 @@
+---
+# Promtail configuration
+log_management_promtail_version: "3.0.1"
+log_management_promtail_binary_url: "https://github.com/grafana/loki/releases/download/v{{ log_management_promtail_version }}/promtail-linux-amd64.zip"
+log_management_promtail_install_dir: "/usr/local/bin"
+log_management_promtail_config_dir: "/etc/promtail"
+log_management_promtail_config_file: "{{ log_management_promtail_config_dir }}/config.yml"
+log_management_promtail_positions_file_path: "/opt/promtail"
+
+# Loki configuration
+log_management_loki_url: "http://localhost:3100"  # Replace with actual Loki URL
+
+# Nginx log paths (adjust if your Nginx role uses different paths)
+log_management_nginx_access_log: "/var/log/nginx/access.log"
+log_management_nginx_error_log: "/var/log/nginx/error.log"
+
+# Enable or disable Promtail installation and configuration
+log_management_enable_promtail: true

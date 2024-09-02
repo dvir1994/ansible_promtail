@@ -1,0 +1,50 @@
+---
+- name: Get Ubuntu release name
+  ansible.builtin.command:
+    cmd: lsb_release -sc
+  register: ubuntu_release
+  changed_when: false
+
+- name: Add security updates to the sources list
+  ansible.builtin.apt_repository:
+    repo: "deb http://security.ubuntu.com/ubuntu {{ ubuntu_release.stdout }}-security main"
+    state: present
+    update_cache: true
+
+- name: Install required packages
+  ansible.builtin.apt:
+    name: "{{ security_apt_packages }}"
+    state: present
+    update_cache: true
+
+- name: Enable and start services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop: "{{ security_services_to_enable }}"
+
+- name: Copy fail2ban configuration
+  ansible.builtin.copy:
+    src: /etc/fail2ban/jail.conf
+    dest: /etc/fail2ban/jail.local
+    remote_src: true
+    mode: '0644'
+
+- name: Set password expiration policies
+  ansible.builtin.lineinfile:
+    path: /etc/login.defs
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+  loop:
+    - { regexp: '^PASS_MIN_DAYS\s+[0-9]+', line: 'PASS_MIN_DAYS   1' }
+    - { regexp: '^PASS_MAX_DAYS\s+[0-9]+', line: 'PASS_MAX_DAYS   90' }
+
+- name: Set warning message for unauthorized users
+  ansible.builtin.copy:
+    content: "{{ security_warning_message }}"
+    dest: "{{ item }}"
+    mode: '0644'
+  loop:
+    - /etc/issue
+    - /etc/issue.net
