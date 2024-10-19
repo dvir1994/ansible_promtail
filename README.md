@@ -1,9 +1,3 @@
-# Monad Labs - DevOps
-
-![monad-logo](https://cdn.prod.website-files.com/65a53f0850c4d385b95f5fb5/65a6de0553148d513979e985_Labs-blue.svg)
-
----
-
 Ansible Playbook for Provisioning of a Bare Metal Server with Promtail, users and nginx.
 
 ## 📋 Verifications
@@ -26,7 +20,7 @@ Tested on:
 - Python 3.10.9
 - Hetzner and AWS instances
 
-## 🔎 Task Scope
+## 🔎 Scope
 
 The playbook sets up the following:
 
@@ -113,10 +107,3 @@ make run
 - Add integration with NameCheap DNS API for dynamic DNS updates (for Nginx SSL setup)
 - Implement SELinux for enhanced security
 - Send Slack update notification - for start and end of the playbook with status
-
-## 🛠️ Resources used
-
-- Ansible documentation - https://docs.ansible.com/
-- Nginx documentation - https://nginx.org/en/docs/
-- Promtail documentation - https://grafana.com/docs/loki/latest/send-data/promtail/configuration/
-- Loki documentation - https://grafana.com/docs/loki/latest/
